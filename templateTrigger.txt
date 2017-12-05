@@ -1,0 +1,28 @@
+-- Trigger lop
+
+IF OBJECT_ID ('tg_Lop_Tram1','TR') IS NOT NULL
+	DROP TRIGGER tg_Lop_Tram1
+GO
+
+CREATE TRIGGER tg_Lop_Tram1
+	ON db.Lop
+	AFTER INSERT, UPDATE
+AS
+	DECLARE @MaNganh nvarchar(10)
+	SET @MaNganh = (SELECT MaNganh FROM inserted)
+	
+	DECLARE @TenNganh = (SELECT TenNganh FROM db.Nganh WHERE MaNganh = @MaNganh) 
+	IF (
+		@TenNganh LIKE '%Cong nghe thong tin%' OR	
+		@TenNganh LIKE '%He thong thong tin%' OR
+		@TenNganh LIKE '%Lap trinh Web%'
+	) BEGIN
+		PRINT ('Cap nhat lop thanh cong') 
+	  END
+	ELSE 
+	  BEGIN
+		RAISERROR ('Cap nhat khong thanh cong. Tram 1 chi dc phep cap nhat thong tin
+			Sinh vien nganh CNTT') 
+		ROLLBACK TRAN
+	  END
+ GO
